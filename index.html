@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vergi Dilimi Analiz Aracı</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Gelir Vergisi Analizi (2000-2026)</h1>
+            <p>Maaşınızın yıllar içindeki vergi yükünü ve dilim erimesini görün.</p>
+        </header>
+
+        <main>
+            <div class="input-section">
+                <label for="brutMaas">Aylık Brüt Maaşınızı Girin (TL):</label>
+                <div class="input-group">
+                    <input type="number" id="brutMaas" placeholder="Örn: 45000" min="0">
+                    <button onclick="analizEt()">Hesapla & Analiz Et</button>
+                </div>
+            </div>
+
+            <div id="results" class="results-grid" style="display: none;">
+                <div class="card" id="currentInfo">
+                    <h3>2026 Durumu</h3>
+                    <p id="gecisAyMetni"></p>
+                </div>
+                <div class="card highlight" id="comparisonInfo">
+                    <h3>Adalet Karşılaştırması</h3>
+                    <p id="eskiKiyasMetni"></p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Vergi Dilimi Erimesi (Asgari Ücret Katsayısı)</h3>
+                <canvas id="katsayiChart"></canvas>
+            </div>
+        </main>
+
+        <footer>
+            <p>Kaynak: DİSK Araştırma Merkezi | Veri Analiz Uygulaması</p>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
