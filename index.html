@@ -13,27 +13,13 @@
             <h1>Gelir Vergisi Analizi (2000-2026)</h1>
             <p>Maaşınızın yıllar içindeki vergi yükünü ve dilim erimesini görün.</p>
         </header>
-<section class="data-table">
-    <h3>Yıllara Göre Katsayı Değişimi</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Yıl</th>
-                <th>Vergi Dilimi (TL)</th>
-                <th>Katsayı</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            </tbody>
-    </table>
-</section>
-        
+
         <main>
             <div class="input-section">
                 <label for="brutMaas">Aylık Brüt Maaşınızı Girin (TL):</label>
                 <div class="input-group">
-                    <input type="number" id="brutMaas" placeholder="Örn: 45000" min="0">
-                    <button onclick="analizEt()">Hesapla & Analiz Et</button>
+                    <input type="number" id="brutMaas" placeholder="Örn: 45000">
+                    <button onclick="analizEt()">Analiz Et</button>
                 </div>
             </div>
 
@@ -49,13 +35,29 @@
             </div>
 
             <div class="chart-container">
-                <h3>Vergi Dilimi Erimesi (Asgari Ücret Katsayısı)</h3>
+                <h3>Vergi Dilimi Erimesi Grafiği</h3>
                 <canvas id="katsayiChart"></canvas>
             </div>
+
+            <section class="data-table-section">
+                <h3>Geçmişten Günümüze Vergi Verileri</h3>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Yıl</th>
+                                <th>İlk Dilim (TL)</th>
+                                <th>Katsayı</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+            </section>
         </main>
 
         <footer>
-            <p>Kaynak: DİSK Araştırma Merkezi | Veri Analiz Uygulaması</p>
+            <p>Kaynak: DİSK Araştırma Merkezi | 2026 Projeksiyonu Dahildir</p>
         </footer>
     </div>
     <script src="script.js"></script>
