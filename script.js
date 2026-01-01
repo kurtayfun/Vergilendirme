@@ -56,3 +56,7 @@ function analizEt() {
         ${adaletliAy <= 12 ? '<b>' + adaletliAy + '. ayda</b>' : '<b>hiçbir zaman</b>'} girmeyecektiniz. 
         Vergi dilimi sınırı 190.000 TL yerine <b>${Math.round(adaletliDilim).toLocaleString()} TL</b> olmalıydı.`;
 }
+const tableBody = document.getElementById('tableBody');
+veriler.reverse().forEach(row => {
+    tableBody.innerHTML += `<tr><td>${row.yil}</td><td>${row.dilim.toLocaleString()}</td><td>${row.katsayi}</td></tr>`;
+});
