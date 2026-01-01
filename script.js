@@ -1,25 +1,12 @@
 const veriler = [
     { yil: 2000, katsayi: 21.9, dilim: 2500 },
-    { yil: 2005, katsayi: 13.5, dilim: 6600 },
-    { yil: 2010, katsayi: 11.8, dilim: 8800 },
-    { yil: 2015, katsayi: 9.7,  dilim: 12000 },
-    { yil: 2020, katsayi: 7.5,  dilim: 22000 },
     { yil: 2024, katsayi: 5.5,  dilim: 110000 },
     { yil: 2025, katsayi: 6.1,  dilim: 158000 },
     { yil: 2026, katsayi: 5.8,  dilim: 190000 }
 ];
 
-// Sayfa açıldığında çalışacaklar
 window.onload = function() {
-    // Tabloyu Doldur
-    const tableBody = document.getElementById('tableBody');
-    veriler.slice().reverse().forEach(row => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${row.yil}</td><td>${row.dilim.toLocaleString()} TL</td><td>${row.katsayi}</td>`;
-        tableBody.appendChild(tr);
-    });
-
-    // Grafiği Çiz
+    // Grafik Çizimi (Aynı Mantık)
     const ctx = document.getElementById('katsayiChart').getContext('2d');
     new Chart(ctx, {
         type: 'line',
@@ -29,28 +16,74 @@ window.onload = function() {
                 label: 'Dilim / Asgari Ücret Katsayısı',
                 data: veriler.map(d => d.katsayi),
                 borderColor: '#e67e22',
-                backgroundColor: 'rgba(230, 126, 34, 0.1)',
-                fill: true,
+                fill: false,
                 tension: 0.3
             }]
-        },
-        options: { responsive: true }
+        }
     });
 };
 
 function analizEt() {
-    const maas = parseFloat(document.getElementById('brutMaas').value);
-    if (!maas) return alert("Lütfen maaş girin");
+    const brut = parseFloat(document.getElementById('brutMaas').value);
+    if (!brut || brut < 33030) return alert("Lütfen en az brüt asgari ücret (33.030 TL) giriniz.");
 
-    document.getElementById('results').style.display = 'grid';
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.style.display = 'block';
+    resultsDiv.innerHTML = ''; // Önce temizle
+
+    // Sabitler (2026 Projeksiyonu)
+    const asgariBrut = 33030;
+    const ilkDilimSiniri = 190000;
+    const sgkOrani = 0.15; // %14 + %1 İşsizlik
     
-    // 2026 Analizi
-    const ay2026 = Math.ceil(190000 / maas);
-    document.getElementById('gecisAyMetni').innerHTML = ay2026 <= 12 
-        ? `Maaşınız <b>${ay2026}. ayda</b> üst vergi dilimine giriyor.` 
-        : `Yıl boyu %15 diliminde kalıyorsunuz.`;
+    let kumulatifMatrah = 0;
+    let tabloContent = '';
 
-    // Karşılaştırma
-    const adaletliDilim = 33030 * 21.9;
-    document.getElementById('eskiKiyasMetni').innerHTML = `2000 yılındaki katsayı (21.9) korunsaydı, vergi dilimi <b>${Math.round(adaletliDilim).toLocaleString()} TL</b> olacaktı ve muhtemelen hiç üst dilime girmeyecektiniz.`;
+    const aylar = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+
+    aylar.forEach(ay => {
+        // 1. SGK Kesintisi
+        const sgkKesintisi = brut * sgkOrani;
+        const gelirVergisiMatrahi = brut - sgkKesintisi;
+        
+        // 2. Vergi Dilimi Kontrolü
+        let vergiOrani = (kumulatifMatrah + gelirVergisiMatrahi) <= ilkDilimSiniri ? 0.15 : 0.20;
+        let hamVergi = gelirVergisiMatrahi * vergiOrani;
+        
+        // 3. Asgari Ücret İstisnası (Asgari ücretin vergisi kadar indirim)
+        const asgariMatrah = asgariBrut * (1 - sgkOrani);
+        const asgariVergiIstisnasi = asgariMatrah * 0.15; // Asgari ücret hep %15'lik dilimden korunur
+        
+        let odenecekVergi = Math.max(0, hamVergi - asgariVergiIstisnasi);
+        let netMaas = brut - sgkKesintisi - odenecekVergi;
+        
+        kumulatifMatrah += gelirVergisiMatrahi;
+
+        tabloContent += `
+            <tr class="${vergiOrani > 0.15 ? 'tax-warning' : ''}">
+                <td>${ay}</td>
+                <td>%${vergiOrani * 100}</td>
+                <td>${Math.round(odenecekVergi).toLocaleString()} TL</td>
+                <td><b>${Math.round(netMaas).toLocaleString()} TL</b></td>
+            </tr>`;
+    });
+
+    resultsDiv.innerHTML = `
+        <div class="card highlight" style="margin-bottom:20px;">
+            <h3>Yıllık Net Maaş Simülasyonu</h3>
+            <p>Brüt Maaş: ${brut.toLocaleString()} TL üzerinden hesaplanmıştır.</p>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr><th>Ay</th><th>Dilim</th><th>Vergi</th><th>Net Ele Geçen</th></tr>
+                    </thead>
+                    <tbody>${tabloContent}</tbody>
+                </table>
+            </div>
+            <p class="info-text">
+                * <b>Hesaplama Detayı:</b> SGK işçi payı (%15) düşülmüş ve asgari ücret vergi istisnası uygulanmıştır. 
+                Turuncu satırlar %20'lik vergi dilimine girdiğiniz ayları göstermektedir.
+            </p>
+        </div>
+    `;
 }
